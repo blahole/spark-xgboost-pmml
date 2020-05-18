@@ -1,0 +1,5 @@
+{"_from": "1","_to": "2","weight": 4,"type": "1"}
+{"_from": "2","_to": "3","weight": 5,"type": "1"}
+{"_from": "3","_to": "1","weight": 8,"type": "1"}
+{"_from": "3","_to": "4","weight": 8,"type": "1"}
+{"_from": "4","_to": "1","weight": 8,"type": "1"}
