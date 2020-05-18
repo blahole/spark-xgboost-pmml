@@ -14,7 +14,7 @@ import org.apache.spark.sql.types.{DoubleType, IntegerType}
 import org.jpmml.model.JAXBUtil
 import org.jpmml.sparkml.PMMLBuilder
 
-object Xgboost2 {
+object Xgboost_hdfs {
 
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org.apache.spark").setLevel(Level.ERROR)
@@ -55,16 +55,6 @@ object Xgboost2 {
     val model = pipeline.fit(newInput)
 
     //
-    val pmml = new PMMLBuilder(newInput.schema, model).build
-    val targetFile = "person/zhanghan/temp/pmml"
-    val conf = new Configuration();//加载配置文件
-    conf.set("fs.hdfs.impl.disable.cache","true")
-    val fs = FileSystem.get(conf);//初始化文件系统
-    val permission = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
-    val fs2 = FileSystem.create(fs, new Path(targetFile), permission)
-    JAXBUtil.marshalPMML(pmml, new StreamResult(fs2))
-
-    //
     val predictResult = model.transform(newInput)
     predictResult.show(false)
     val xgBoostClassificationModel = model.stages(1).asInstanceOf[XGBoostClassificationModel]
@@ -72,6 +62,18 @@ object Xgboost2 {
     val evaluator = new BinaryClassificationEvaluator().setLabelCol("class").setRawPredictionCol("probabilities")
     val aucArea = evaluator.evaluate(predictResult)
     System.out.println("auc is :" + aucArea)
+
+    //
     model.write.overwrite.save("person/zhanghan/temp/bin")
+
+    //
+    val pmml = new PMMLBuilder(newInput.schema, model).build
+    val targetFile = "person/zhanghan/temp/pmml"
+    val conf = new Configuration(); //加载配置文件
+    conf.set("fs.hdfs.impl.disable.cache", "true")
+    val fs = FileSystem.get(conf); //初始化文件系统
+    val permission = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
+    val fs2 = FileSystem.create(fs, new Path(targetFile), permission)
+    JAXBUtil.marshalPMML(pmml, new StreamResult(fs2))
   }
 }

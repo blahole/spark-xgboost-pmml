@@ -11,7 +11,7 @@ import org.apache.spark.sql.types.DoubleType
 import org.jpmml.model.PMMLUtil
 import org.jpmml.sparkml.PMMLBuilder
 
-object Xgboost {
+object Xgboost_local {
 
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org.apache.org.apache.spark").setLevel(Level.ERROR)
